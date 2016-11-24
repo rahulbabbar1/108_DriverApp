@@ -1,5 +1,6 @@
 package com.sdsmdg.maps;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     EditText lat, lng;
     MarkerOptions clientPosition;
     boolean mapReady = false;
+    boolean shouldShow = false;
 
     //TODO Convert int to float
     @Override
@@ -37,11 +39,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         lat = (EditText) findViewById(R.id.lat);
         lng = (EditText) findViewById(R.id.lng);
 
+
+
         show.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mapReady) {
-                    m_map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     if (lat.getText().toString().trim().length() != 0 && lng.getText().toString().trim().length() != 0) {
                         LatLng latLng = new LatLng(Float.parseFloat(lat.getText().toString()), Float.parseFloat(lng.getText().toString()));
                         CameraPosition target = CameraPosition.builder().target(latLng).zoom(15).build();
@@ -53,16 +56,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
+
+        Intent intent = getIntent();
+        if(intent.getBooleanExtra("isFromSmsReceiver",false)){
+            lat.setText(intent.getStringExtra("latitude"));
+            lng.setText(intent.getStringExtra("longitude"));
+            shouldShow=true;
+        }
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
+
 
     @Override
     public void onMapReady(GoogleMap map) {
         mapReady = true;
         m_map = map;
+        m_map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
+        if(shouldShow){
+            show.performClick();
+        }
     }
-
 
 }
