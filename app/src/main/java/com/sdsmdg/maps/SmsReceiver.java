@@ -39,7 +39,7 @@ public class SmsReceiver extends BroadcastReceiver {
                     latitude = recievedMSG.substring(recievedMSG.indexOf('[')+1,firstClosBrac);
                     longitude = recievedMSG.substring(recievedMSG.indexOf('[',firstClosBrac)+1,recievedMSG.indexOf(']',firstClosBrac+1));
                     Log.d(TAG, "onReceive() called with: " + "latitude = [" + latitude + "], longitude = [" + longitude + "]");
-                    Intent i=new Intent(context,MainActivity.class);
+                    Intent i=new Intent(context,LoginActivity.class);
                     i.putExtra("isFromSmsReceiver",true);
                     i.putExtra("latitude", latitude);
                     i.putExtra("longitude",longitude);

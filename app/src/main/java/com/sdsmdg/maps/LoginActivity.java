@@ -1,8 +1,12 @@
 package com.sdsmdg.maps;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +33,8 @@ public class LoginActivity extends AppCompatActivity{
     private String TAG="loginactivity";
     private boolean isNewUser=false;
     private String phoneNumber="";
+    private Activity SavedActivity;
+    private int count=0;
 
 
     @Override
@@ -85,6 +91,8 @@ public class LoginActivity extends AppCompatActivity{
             }
         });
 
+        SavedActivity=LoginActivity.this;
+        myCheckPermission(SavedActivity);
 
 
     }
@@ -98,13 +106,21 @@ public class LoginActivity extends AppCompatActivity{
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    if(isNewUser){
-                        sendData("driver/"+user.getUid()+"/phoneNumber",phoneNumber);
+                    if(count==0){
+                        count++;
+                        if(isNewUser){
+                            sendData("driver/"+user.getUid()+"/phoneNumber",phoneNumber);
+                        }
+                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                        Intent intentPrev = getIntent();
+                        if((getIntent()!=null)&&(intentPrev.getBooleanExtra("isFromSmsReceiver",false))){
+                            intent.fillIn(getIntent(),Intent.FILL_IN_DATA);
+                        }
+                        startActivity(intent);
+
+                        finish();
+                        Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     }
-                    Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -173,6 +189,75 @@ public class LoginActivity extends AppCompatActivity{
         super.onStop();
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+
+    public final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
+
+    public void myCheckPermission(Activity thisActivity){
+        // Here, thisActivity is the current activity
+        if( ContextCompat.checkSelfPermission(thisActivity,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED||(ContextCompat.checkSelfPermission(thisActivity,
+                android.Manifest.permission.INTERNET)
+                != PackageManager.PERMISSION_GRANTED)||(ContextCompat.checkSelfPermission(thisActivity,
+                android.Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED)||(ContextCompat.checkSelfPermission(thisActivity,
+                android.Manifest.permission.RECEIVE_SMS)
+                != PackageManager.PERMISSION_GRANTED) ){
+
+//            // Should we show an explanation?
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity,
+//                    Manifest.permission.READ_CONTACTS)) {
+//
+//                // Show an explanation to the user *asynchronously* -- don't block
+//                // this thread waiting for the user's response! After the user
+//                // sees the explanation, try again to request the permission.
+//
+//            } else {
+
+            // No explanation needed, we can request the permission.
+            Log.d(TAG, "myCheckPermission() if called with: " + "thisActivity = [" + thisActivity + "]");
+
+            ActivityCompat.requestPermissions(thisActivity,
+                    new String[]{ android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.INTERNET, android.Manifest.permission.SEND_SMS, android.Manifest.permission.RECEIVE_SMS},
+                    MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+            // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+            // app-defined int constant. The callback method gets the
+            // result of the request.
+            //}
+
+        }
+        else{
+            Log.d(TAG, "myCheckPermission() else called with: " + "thisActivity = [" + thisActivity + "]");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                myCheckPermission(SavedActivity);
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
         }
     }
 
