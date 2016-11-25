@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -16,6 +17,8 @@ import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -53,11 +56,26 @@ public class GetLocation extends Service {
             public void onLocationChanged(Location location) {
                 //Called when a new location is found by the network location provider.
                 //makeUseOfNewLocation(location);
-                if(count==0){
                     //sendSMS(location.getLatitude(),location.getLongitude());
                     Log.d(TAG, "onLocationChanged() called with: " + "location = [" + location + "]");
-                    sendData("message","Hello");
-                }
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    String emailfb="";
+                    String uidfb="";
+                    if (user != null) {
+                        // Name, email address, and profile photo Url
+                        //name = user.getDisplayName();
+                        emailfb = user.getEmail();
+                        //Uri photoUrl = user.getPhotoUrl();
+
+                        // The user's ID, unique to the Firebase project. Do NOT use this value to
+                        // authenticate with your backend server, if you have one. Use
+                        // FirebaseUser.getToken() instead.
+                        uidfb = user.getUid();
+                    }
+                    sendData("driver/"+uidfb+"/latitude",Double.toString(location.getLatitude()));
+                    sendData("driver/"+uidfb+"/longitude",Double.toString(location.getLongitude()));
+                    sendData("driver/"+uidfb+"/accuracy",Double.toString(location.getAccuracy()));
+
                 //Toast.makeText(GetLocation.this, "onLocationChanged() called with: " + "location [ longitude = " + location.getLongitude() + " latitude = " + location.getLatitude() + "]",Toast.LENGTH_LONG).show();
                 Log.d(TAG, "onLocationChanged() called with: " + "location [ longitude = " + location.getLongitude() + " latitude = " + location.getLatitude() + " type: " +location.getProvider() + " accuracy : " + location.getAccuracy()+"]" );
                 count++;

@@ -126,25 +126,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 finish();
                 return true;
 
-//            case R.id.menu_save:
-//                Toast.makeText(AndroidMenusActivity.this, "Save is Selected", Toast.LENGTH_SHORT).show();
-//                return true;
-//
-//            case R.id.menu_search:
-//                Toast.makeText(AndroidMenusActivity.this, "Search is Selected", Toast.LENGTH_SHORT).show();
-//                return true;
-//
-//            case R.id.menu_share:
-//                Toast.makeText(AndroidMenusActivity.this, "Share is Selected", Toast.LENGTH_SHORT).show();
-//                return true;
-//
-//            case R.id.menu_delete:
-//                Toast.makeText(AndroidMenusActivity.this, "Delete is Selected", Toast.LENGTH_SHORT).show();
-//                return true;
-//
-//            case R.id.menu_preferences:
-//                Toast.makeText(AndroidMenusActivity.this, "Preferences is Selected", Toast.LENGTH_SHORT).show();
-//                return true;
 
             default:
                 return super.onOptionsItemSelected(item);
