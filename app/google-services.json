@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "617155210229",
+    "firebase_url": "https://hackathon-65c39.firebaseio.com",
+    "project_id": "hackathon-65c39",
+    "storage_bucket": "hackathon-65c39.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:617155210229:android:029c8c0e2039c36a",
+        "android_client_info": {
+          "package_name": "com.sdsmdg.maps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "617155210229-fdjtj69gs5v50h0ta7fsks4jbsr04al9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbjbHV4y7Zhl3B6VH8JO-_kZB2GyUwUTA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

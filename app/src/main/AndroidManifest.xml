@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
 
+    <uses-feature android:name="android.hardware.location.gps" />
+
+
     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true" />
@@ -21,12 +24,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
+
+        </activity>
+
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -40,6 +48,10 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
+
+
+        <service android:name=".GetLocation"/>
+
     </application>
 
 </manifest>
