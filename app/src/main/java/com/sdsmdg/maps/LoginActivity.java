@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -15,6 +16,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * Created by rahul on 25/11/16.
@@ -24,6 +27,8 @@ public class LoginActivity extends AppCompatActivity{
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private String TAG="loginactivity";
+    private boolean isNewUser=false;
+    private String phoneNumber="";
 
 
     @Override
@@ -33,8 +38,37 @@ public class LoginActivity extends AppCompatActivity{
         init();
         final EditText emailET= (EditText)findViewById(R.id.emailET);
         final EditText passET= (EditText)findViewById(R.id.passET);
+        final TextView switchTV = (TextView)findViewById(R.id.signupTV);
+        final TextView switchTVBack = (TextView)findViewById(R.id.signupTV2);
+        final Button loginButton=(Button)findViewById(R.id.login);
+        final EditText phoneET= (EditText)findViewById(R.id.phoneET);
+        final Button signupButton=(Button)findViewById(R.id.signup);
 
-        Button loginButton=(Button)findViewById(R.id.login);
+        switchTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                phoneET.setVisibility(View.VISIBLE);
+                loginButton.setVisibility(View.INVISIBLE);
+                signupButton.setVisibility(View.VISIBLE);
+                switchTV.setVisibility(View.INVISIBLE);
+                switchTVBack.setVisibility(View.VISIBLE);
+                isNewUser=true;
+            }
+        });
+
+        switchTVBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                phoneET.setVisibility(View.INVISIBLE);
+                loginButton.setVisibility(View.VISIBLE);
+                signupButton.setVisibility(View.INVISIBLE);
+                switchTV.setVisibility(View.VISIBLE);
+                switchTVBack.setVisibility(View.INVISIBLE);
+                isNewUser=false;
+            }
+        });
+
+
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -42,14 +76,14 @@ public class LoginActivity extends AppCompatActivity{
             }
         });
 
-        Button signupButton=(Button)findViewById(R.id.signup);
+
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                phoneNumber=phoneET.getText().toString();
                 createAccount(emailET.getText().toString(),passET.getText().toString());
             }
         });
-
 
 
 
@@ -64,8 +98,12 @@ public class LoginActivity extends AppCompatActivity{
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
+                    if(isNewUser){
+                        sendData("driver/"+user.getUid()+"/phoneNumber",phoneNumber);
+                    }
                     Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                     startActivity(intent);
+                    finish();
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
                     // User is signed out
@@ -94,6 +132,13 @@ public class LoginActivity extends AppCompatActivity{
                         // ...
                     }
                 });
+    }
+
+    public void sendData(String location,String value){
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference(location);
+
+        myRef.setValue(value);
     }
 
     private void signin(String email,String password){
