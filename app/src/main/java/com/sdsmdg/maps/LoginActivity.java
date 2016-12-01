@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +23,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by rahul on 25/11/16.
@@ -78,7 +82,9 @@ public class LoginActivity extends AppCompatActivity{
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signin(emailET.getText().toString(),passET.getText().toString());
+                if(validateEmail(emailET)&&validatePassword(passET)){
+                    signin(emailET.getText().toString(),passET.getText().toString());
+                }
             }
         });
 
@@ -86,8 +92,10 @@ public class LoginActivity extends AppCompatActivity{
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                phoneNumber=phoneET.getText().toString();
-                createAccount(emailET.getText().toString(),passET.getText().toString());
+                if(validateEmail(emailET)&&validatePassword(passET)&&validatePhone(phoneET)){
+                    phoneNumber=phoneET.getText().toString();
+                    createAccount(emailET.getText().toString(),passET.getText().toString());
+                }
             }
         });
 
@@ -260,5 +268,59 @@ public class LoginActivity extends AppCompatActivity{
             // permissions this app might request
         }
     }
+
+    private boolean validatePhone(EditText editText) {
+        String temp = editText.getText().toString().trim();
+        editText.setText(temp);
+        if (TextUtils.isEmpty(temp)) {
+            editText.setError("Required.");
+            return false;
+        } else {
+            editText.setError(null);
+            return true;
+        }
+    }
+
+    private boolean validateEmail(EditText editText) {
+        String temp = editText.getText().toString().trim();
+        editText.setText(temp);
+        if (TextUtils.isEmpty(temp)) {
+            editText.setError("Required.");
+            return false;
+        }
+        else if(!android.util.Patterns.EMAIL_ADDRESS.matcher(temp).matches()){
+            editText.setError("invalid Email.");
+            return false;
+        }
+        else {
+            editText.setError(null);
+            return true;
+        }
+    }
+
+    private boolean validatePassword(EditText editText) {
+        String temp = editText.getText().toString();
+        if (TextUtils.isEmpty(temp)) {
+            editText.setError("Required.");
+            return false;
+        } else if(temp.length()<8){
+            editText.setError("Password must contain atleast 8 characters..");
+            return false;
+        }
+        else{
+            editText.setError(null);
+            return true;
+        }
+    }
+
+//    private static final String PASSWORD_PATTERN = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,20})";
+//
+//    public boolean validatePassString(final String password){
+//        Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
+//        Matcher matcher = pattern.matcher(password);
+//        return matcher.matches();
+//
+//    }
+
 
 }
