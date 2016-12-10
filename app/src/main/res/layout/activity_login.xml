@@ -6,13 +6,25 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Name"
+        android:visibility="invisible"
+        android:id="@+id/nameET"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
         android:ems="10"
         android:hint="Email"
         android:id="@+id/emailET"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="98dp" />
+        android:layout_marginTop="40dp"
+        android:layout_below="@+id/nameET"
+        android:layout_alignLeft="@+id/nameET"
+        android:layout_alignStart="@+id/nameET" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -21,29 +33,19 @@
         android:ems="10"
         android:hint="Password"
         android:id="@+id/passET"
-        android:layout_marginTop="55dp"
+        android:layout_marginTop="40dp"
         android:layout_below="@+id/emailET"
         android:layout_alignLeft="@+id/emailET"
         android:layout_alignStart="@+id/emailET" />
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="80dp"
-        android:layout_below="@+id/passET"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/linearLayout2">
-
-    </LinearLayout>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sign In"
-        android:id="@+id/login"
+        android:id="@+id/loginet"
         android:layout_gravity="bottom"
-        android:layout_marginTop="53dp"
-        android:layout_below="@+id/linearLayout2"
+        android:layout_marginTop="40dp"
+        android:layout_below="@+id/phoneET"
         android:layout_centerHorizontal="true" />
 
     <Button
@@ -53,8 +55,8 @@
         android:visibility="invisible"
         android:id="@+id/signup"
         android:layout_gravity="bottom"
-        android:layout_marginTop="53dp"
-        android:layout_below="@+id/linearLayout2"
+        android:layout_marginTop="40dp"
+        android:layout_below="@+id/phoneET"
         android:layout_centerHorizontal="true" />
 
     <EditText
@@ -64,8 +66,9 @@
         android:ems="10"
         android:id="@+id/phoneET"
         android:hint="Phone No."
+        android:layout_marginTop="40dp"
         android:visibility="invisible"
-        android:layout_alignBottom="@+id/linearLayout2"
+        android:layout_below="@+id/passET"
         android:layout_centerHorizontal="true" />
 
     <TextView

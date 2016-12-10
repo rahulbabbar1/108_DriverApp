@@ -37,6 +37,7 @@ public class LoginActivity extends AppCompatActivity{
     private String TAG="loginactivity";
     private boolean isNewUser=false;
     private String phoneNumber="";
+    private String name="";
     private Activity SavedActivity;
     private int count=0;
 
@@ -50,13 +51,15 @@ public class LoginActivity extends AppCompatActivity{
         final EditText passET= (EditText)findViewById(R.id.passET);
         final TextView switchTV = (TextView)findViewById(R.id.signupTV);
         final TextView switchTVBack = (TextView)findViewById(R.id.signupTV2);
-        final Button loginButton=(Button)findViewById(R.id.login);
+        final Button loginButton=(Button)findViewById(R.id.loginet);
         final EditText phoneET= (EditText)findViewById(R.id.phoneET);
+        final EditText nameET= (EditText)findViewById(R.id.nameET);
         final Button signupButton=(Button)findViewById(R.id.signup);
 
         switchTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                nameET.setVisibility(View.VISIBLE);
                 phoneET.setVisibility(View.VISIBLE);
                 loginButton.setVisibility(View.INVISIBLE);
                 signupButton.setVisibility(View.VISIBLE);
@@ -69,6 +72,7 @@ public class LoginActivity extends AppCompatActivity{
         switchTVBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                nameET.setVisibility(View.INVISIBLE);
                 phoneET.setVisibility(View.INVISIBLE);
                 loginButton.setVisibility(View.VISIBLE);
                 signupButton.setVisibility(View.INVISIBLE);
@@ -92,8 +96,9 @@ public class LoginActivity extends AppCompatActivity{
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(validateEmail(emailET)&&validatePassword(passET)&&validatePhone(phoneET)){
+                if(validateName(nameET)&&validateEmail(emailET)&&validatePassword(passET)&&validatePhone(phoneET)){
                     phoneNumber=phoneET.getText().toString();
+                    name=nameET.getText().toString();
                     createAccount(emailET.getText().toString(),passET.getText().toString());
                 }
             }
@@ -118,6 +123,7 @@ public class LoginActivity extends AppCompatActivity{
                         count++;
                         if(isNewUser){
                             sendData("driver/"+user.getUid()+"/phoneNumber",phoneNumber);
+                            sendData("driver/"+user.getUid()+"/name",name);
                         }
                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                         Intent intentPrev = getIntent();
@@ -270,6 +276,22 @@ public class LoginActivity extends AppCompatActivity{
     }
 
     private boolean validatePhone(EditText editText) {
+        String temp = editText.getText().toString().trim();
+        editText.setText(temp);
+        if (TextUtils.isEmpty(temp)) {
+            editText.setError("Required.");
+            return false;
+        }
+        else if(temp.length()!=10){
+            editText.setError("Required to be of 10 digits.");
+            return false;
+        }else {
+            editText.setError(null);
+            return true;
+        }
+    }
+
+    private boolean validateName(EditText editText) {
         String temp = editText.getText().toString().trim();
         editText.setText(temp);
         if (TextUtils.isEmpty(temp)) {
