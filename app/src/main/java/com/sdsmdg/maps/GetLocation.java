@@ -19,8 +19,11 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 /**
  * Created by rahul on 24/11/16.
@@ -29,6 +32,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class GetLocation extends Service {
     public String TAG="getlocation";
+    private String city="";
     public int count=0;
     @Override
     public IBinder onBind(Intent intent) {
@@ -72,9 +76,12 @@ public class GetLocation extends Service {
                         // FirebaseUser.getToken() instead.
                         uidfb = user.getUid();
                     }
-                    sendData("driver/"+uidfb+"/latitude",Double.toString(location.getLatitude()));
-                    sendData("driver/"+uidfb+"/longitude",Double.toString(location.getLongitude()));
-                    sendData("driver/"+uidfb+"/accuracy",Double.toString(location.getAccuracy()));
+                    getData("cityData/"+uidfb);
+                    if((!city.equals(""))&&city!=null){
+                    sendData("driver/"+city+"/"+uidfb+"/latitude",Double.toString(location.getLatitude()));
+                    sendData("driver/"+city+"/"+uidfb+"/longitude",Double.toString(location.getLongitude()));
+                    sendData("driver/"+city+"/"+uidfb+"/accuracy",Double.toString(location.getAccuracy()));
+                    }
 
                 //Toast.makeText(GetLocation.this, "onLocationChanged() called with: " + "location [ longitude = " + location.getLongitude() + " latitude = " + location.getLatitude() + "]",Toast.LENGTH_LONG).show();
                 Log.d(TAG, "onLocationChanged() called with: " + "location [ longitude = " + location.getLongitude() + " latitude = " + location.getLatitude() + " type: " +location.getProvider() + " accuracy : " + location.getAccuracy()+"]" );
@@ -156,6 +163,22 @@ public class GetLocation extends Service {
         }).start();
     }
 
+    public void getData(String location){
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference(location);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onDataChange() called with: dataSnapshot = [" + dataSnapshot.toString() + "]");
+                 city=dataSnapshot.child("city").getValue().toString();
+                Log.d(TAG, "get data onDataChange() called with: city = [" + city + "]");
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
     public void sendData(String location,String value){
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference(location);

@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">108 ServiceMan App</string>
+    <string name="spinner_title">City</string>
     <string name="key">AIzaSyAVrAs49EdgKRuFJSOedzO-s--AldjRiuQ</string>
 </resources>

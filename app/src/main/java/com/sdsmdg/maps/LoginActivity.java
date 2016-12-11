@@ -11,8 +11,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,13 +27,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Created by rahul on 25/11/16.
  */
-public class LoginActivity extends AppCompatActivity{
+public class LoginActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -40,13 +45,19 @@ public class LoginActivity extends AppCompatActivity{
     private String name="";
     private Activity SavedActivity;
     private int count=0;
-
+    private Spinner spinner;
+    private String city;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         init();
+
+        spinner = (Spinner) findViewById(R.id.spinner);
+        setSpinner();
+
         final EditText emailET= (EditText)findViewById(R.id.emailET);
         final EditText passET= (EditText)findViewById(R.id.passET);
         final TextView switchTV = (TextView)findViewById(R.id.signupTV);
@@ -61,6 +72,7 @@ public class LoginActivity extends AppCompatActivity{
             public void onClick(View v) {
                 nameET.setVisibility(View.VISIBLE);
                 phoneET.setVisibility(View.VISIBLE);
+                spinner.setVisibility(View.VISIBLE);
                 loginButton.setVisibility(View.INVISIBLE);
                 signupButton.setVisibility(View.VISIBLE);
                 switchTV.setVisibility(View.INVISIBLE);
@@ -74,6 +86,7 @@ public class LoginActivity extends AppCompatActivity{
             public void onClick(View v) {
                 nameET.setVisibility(View.INVISIBLE);
                 phoneET.setVisibility(View.INVISIBLE);
+                spinner.setVisibility(View.INVISIBLE);
                 loginButton.setVisibility(View.VISIBLE);
                 signupButton.setVisibility(View.INVISIBLE);
                 switchTV.setVisibility(View.VISIBLE);
@@ -122,8 +135,9 @@ public class LoginActivity extends AppCompatActivity{
                     if(count==0){
                         count++;
                         if(isNewUser){
-                            sendData("driver/"+user.getUid()+"/phoneNumber",phoneNumber);
-                            sendData("driver/"+user.getUid()+"/name",name);
+                            sendData("cityData/"+user.getUid()+"/city",city);
+                            sendData("driver/"+city+"/"+user.getUid()+"/phoneNumber",phoneNumber);
+                            sendData("driver/"+city+"/"+user.getUid()+"/name",name);
                         }
                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                         Intent intentPrev = getIntent();
@@ -333,6 +347,41 @@ public class LoginActivity extends AppCompatActivity{
             editText.setError(null);
             return true;
         }
+    }
+
+    public void setSpinner(){
+
+
+        // Spinner click listener
+        spinner.setOnItemSelectedListener(this);
+
+        // Spinner Drop down elements
+        city="Chennai";
+        List<String> categories = new ArrayList <String>();
+        categories.add("Chennai");
+        categories.add("Kancheepuram");
+        categories.add("Thiruvallur");
+
+        // Creating adapter for spinner
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter <String>(this, android.R.layout.simple_spinner_item, categories);
+
+        // Drop down layout style - list view with radio button
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // attaching data adapter to spinner
+        spinner.setAdapter(dataAdapter);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // On selecting a spinner item
+        city = parent.getItemAtPosition(position).toString();
+
+        // Showing selected spinner item
+        //Toast.makeText(parent.getContext(), "Selected: " + city, Toast.LENGTH_LONG).show();
+    }
+    public void onNothingSelected(AdapterView<?> arg0) {
+        // TODO Auto-generated method stub
     }
 
 //    private static final String PASSWORD_PATTERN = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,20})";
