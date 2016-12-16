@@ -17,6 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,6 +30,11 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import static android.R.attr.imeFullscreenBackground;
 import static android.R.attr.value;
@@ -35,13 +42,16 @@ import static android.R.attr.width;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
     GoogleMap m_map;
-    Button show;
+    Button show, markComplete;
+    LinearLayout nameContainer;
     EditText lat, lng;
+    TextView name, mobile;
     MarkerOptions clientPosition;
     boolean mapReady = false;
     boolean shouldShow = false;
     public Activity mainActivity;
     public String TAG="MainActivity";
+    private String requestId;
 
     //TODO Convert int to float
     @Override
@@ -50,9 +60,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
         show = (Button) findViewById(R.id.show);
+        markComplete = (Button) findViewById(R.id.mark_complete);
+        nameContainer = (LinearLayout) findViewById(R.id.name_container);
         lat = (EditText) findViewById(R.id.lat);
         lng = (EditText) findViewById(R.id.lng);
-
+        name = (TextView) findViewById(R.id.name);
+        mobile = (TextView) findViewById(R.id.mobile);
         mainActivity=MainActivity.this;
 
         Intent i= new Intent(MainActivity.this,GetLocation.class);
@@ -67,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (lat.getText().toString().trim().length() != 0 && lng.getText().toString().trim().length() != 0) {
                         LatLng latLng = new LatLng(Float.parseFloat(lat.getText().toString()), Float.parseFloat(lng.getText().toString()));
                         CameraPosition target = CameraPosition.builder().target(latLng).zoom(15).build();
-
                         clientPosition = new MarkerOptions().position(latLng).title("Emergency");
                         m_map.moveCamera(CameraUpdateFactory.newCameraPosition(target));
                         m_map.addMarker(clientPosition);
@@ -76,10 +88,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        markComplete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(requestId != null) {
+                    markRequestComplete(requestId);
+                    nameContainer.setVisibility(View.GONE);
+                    Toast.makeText(MainActivity.this, "Task Completed", Toast.LENGTH_LONG).show();
+                    finish();
+                } else {
+                    Toast.makeText(MainActivity.this,"No request id",Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
         Intent intent = getIntent();
         if(intent.getBooleanExtra("isFromSmsReceiver",false)){
             lat.setText(intent.getStringExtra("latitude"));
             lng.setText(intent.getStringExtra("longitude"));
+            name.setText(intent.getStringExtra("name"));
+            mobile.setText(intent.getStringExtra("mobile"));
+            requestId = intent.getStringExtra("requestId");
+            nameContainer.setVisibility(View.VISIBLE);
             shouldShow=true;
         }
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
@@ -133,6 +163,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-
-
+    public void markRequestComplete(String requestId){
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference requestRef = database.getReference("requests/"+requestId+"/status");
+        requestRef.setValue("completed");
+    }
 }
