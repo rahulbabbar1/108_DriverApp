@@ -135,18 +135,21 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                     if(count==0){
                         count++;
                         if(isNewUser){
-                            sendData("cityData/"+user.getUid()+"/city",city);
-                            sendData("driver/"+city+"/"+user.getUid()+"/phone",phoneNumber);
-                            sendData("driver/"+city+"/"+user.getUid()+"/name",name);
-                            sendData("driver/"+city+"/"+user.getUid()+"/district",city);
-                            sendData("driver/"+city+"/"+user.getUid()+"/status","active");
+                            uploadData(user.getUid());
                         }
-                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+
                         Intent intentPrev = getIntent();
                         if((getIntent()!=null)&&(intentPrev.getBooleanExtra("isFromSmsReceiver",false))){
+                            Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                             intent.fillIn(getIntent(),Intent.FILL_IN_DATA);
+                            startActivity(intent);
                         }
-                        startActivity(intent);
+                        else{
+                            Intent intent = new Intent(LoginActivity.this,HomeActivity.class);
+                            intent.putExtra("uid",user.getUid());
+                            startActivity(intent);
+                        }
+
 
                         finish();
                         Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
@@ -282,7 +285,6 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
-                myCheckPermission(SavedActivity);
                 return;
             }
 
@@ -384,6 +386,14 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
     }
     public void onNothingSelected(AdapterView<?> arg0) {
         // TODO Auto-generated method stub
+    }
+
+    private void uploadData(String uid){
+        sendData("cityData/"+uid+"/city",city);
+        sendData("driver/"+city+"/"+uid+"/phone",phoneNumber);
+        sendData("driver/"+city+"/"+uid+"/name",name);
+        sendData("driver/"+city+"/"+uid+"/district",city);
+        sendData("driver/"+city+"/"+uid+"/status","active");
     }
 
 //    private static final String PASSWORD_PATTERN = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,20})";

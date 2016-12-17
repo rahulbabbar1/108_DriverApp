@@ -162,25 +162,25 @@ public class GetLocation extends Service {
 //                smsManager.sendTextMessage(Constants.serverNumber, null, smsBody, null, null);
 //            }
 //        }).start();
-//    }
+    //    }
 
-    public void getData(String location) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference(location);
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG, "onDataChange() called with: dataSnapshot = [" + dataSnapshot.toString() + "]");
-                city = dataSnapshot.child("city").getValue().toString();
-                Log.d(TAG, "get data onDataChange() called with: city = [" + city + "]");
-            }
+        public void getData(String location) {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference(location);
+            myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "onDataChange() called with: dataSnapshot = [" + dataSnapshot.toString() + "]");
+                    city = dataSnapshot.child("city").getValue().toString();
+                    Log.d(TAG, "get data onDataChange() called with: city = [" + city + "]");
+                }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
-    }
+                }
+            });
+        }
 
     public void sendData(String location, String value) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();

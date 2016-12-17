@@ -129,6 +129,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void logout(){
         FirebaseAuth.getInstance().signOut();
+        Intent loginIntent=new Intent(this,LoginActivity.class);
+        startActivity(loginIntent);
     }
 
     // Initiating Menu XML file (menu.xml)
