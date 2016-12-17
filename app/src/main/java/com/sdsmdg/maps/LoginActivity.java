@@ -136,8 +136,10 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                         count++;
                         if(isNewUser){
                             sendData("cityData/"+user.getUid()+"/city",city);
-                            sendData("driver/"+city+"/"+user.getUid()+"/phoneNumber",phoneNumber);
+                            sendData("driver/"+city+"/"+user.getUid()+"/phone",phoneNumber);
                             sendData("driver/"+city+"/"+user.getUid()+"/name",name);
+                            sendData("driver/"+city+"/"+user.getUid()+"/district",city);
+                            sendData("driver/"+city+"/"+user.getUid()+"/status","active");
                         }
                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                         Intent intentPrev = getIntent();

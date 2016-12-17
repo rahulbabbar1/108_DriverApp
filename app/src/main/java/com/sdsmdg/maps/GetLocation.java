@@ -31,7 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 public class GetLocation extends Service {
     public String TAG = "getlocation";
     private String city = "";
-    public int count = 0;
+//    public int count = 0;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -72,17 +72,17 @@ public class GetLocation extends Service {
                     // authenticate with your backend server, if you have one. Use
                     // FirebaseUser.getToken() instead.
                     uidfb = user.getUid();
-                }
-                getData("cityData/" + uidfb);
-                if ((!city.equals("")) && city != null) {
-                    sendData("driver/" + city + "/" + uidfb + "/latitude", Double.toString(location.getLatitude()));
-                    sendData("driver/" + city + "/" + uidfb + "/longitude", Double.toString(location.getLongitude()));
-                    sendData("driver/" + city + "/" + uidfb + "/accuracy", Double.toString(location.getAccuracy()));
+                    getData("cityData/" + uidfb);
+                    if ((!city.equals(""))) {
+                        sendData("driver/" + city + "/" + uidfb + "/latitude", Double.toString(location.getLatitude()));
+                        sendData("driver/" + city + "/" + uidfb + "/longitude", Double.toString(location.getLongitude()));
+                        sendData("driver/" + city + "/" + uidfb + "/accuracy", Double.toString(location.getAccuracy()));
+                    }
                 }
 
                 //Toast.makeText(GetLocation.this, "onLocationChanged() called with: " + "location [ longitude = " + location.getLongitude() + " latitude = " + location.getLatitude() + "]",Toast.LENGTH_LONG).show();
-                Log.d(TAG, "onLocationChanged() called with: " + "location [ longitude = " + location.getLongitude() + " latitude = " + location.getLatitude() + " type: " + location.getProvider() + " accuracy : " + location.getAccuracy() + "]");
-                count++;
+//                Log.d(TAG, "onLocationChanged() called with: " + "location [ longitude = " + location.getLongitude() + " latitude = " + location.getLatitude() + " type: " + location.getProvider() + " accuracy : " + location.getAccuracy() + "]");
+//                count++;
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {

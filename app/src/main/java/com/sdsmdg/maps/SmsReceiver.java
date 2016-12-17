@@ -35,15 +35,15 @@ public class SmsReceiver extends BroadcastReceiver {
 //                String receiveTime = format.format(date);
                 recievedMSG = msg.getDisplayMessageBody();
                 if (recievedMSG.startsWith("Laterox")) {
-                    String regex = "(\\[(.+)\\]){5}";
+                    String regex = "\\[(.+)\\]\\[(.+)\\]\\[(.+)\\]\\[(.+)\\]\\[(.+)\\]";
                     Pattern pattern = Pattern.compile(regex);
                     Matcher matcher = pattern.matcher(recievedMSG);
                     if (matcher.find()) {
-                        latitude = matcher.group(1).substring(1, -1);
-                        longitude = matcher.group(2).substring(1, -1);
-                        name = matcher.group(3).substring(1, -1);
-                        userMobile = matcher.group(4).substring(1, -1);
-                        requestId = matcher.group(5).substring(1, -1);
+                        latitude = matcher.group(1);
+                        longitude = matcher.group(2);
+                        name = matcher.group(3);
+                        userMobile = matcher.group(4);
+                        requestId = matcher.group(5);
                     }
 //                    int firstClosBrac = recievedMSG.indexOf(']');
 //                    latitude = recievedMSG.substring(recievedMSG.indexOf('[')+1,firstClosBrac);
