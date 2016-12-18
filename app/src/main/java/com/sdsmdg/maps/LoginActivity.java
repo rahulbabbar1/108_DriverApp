@@ -2,6 +2,7 @@ package com.sdsmdg.maps;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -131,17 +132,18 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
+
                     // User is signed in
                     if(count==0){
                         count++;
                         if(isNewUser){
                             uploadData(user.getUid());
                         }
-
                         Intent intentPrev = getIntent();
                         if((getIntent()!=null)&&(intentPrev.getBooleanExtra("isFromSmsReceiver",false))){
                             Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                             intent.fillIn(getIntent(),Intent.FILL_IN_DATA);
+                            intent.putExtra("uid",user.getUid());
                             startActivity(intent);
                         }
                         else{
@@ -149,8 +151,6 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                             intent.putExtra("uid",user.getUid());
                             startActivity(intent);
                         }
-
-
                         finish();
                         Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     }
@@ -355,7 +355,6 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
 
     public void setSpinner(){
 
-
         // Spinner click listener
         spinner.setOnItemSelectedListener(this);
 
@@ -396,14 +395,6 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
         sendData("driver/"+city+"/"+uid+"/status","active");
     }
 
-//    private static final String PASSWORD_PATTERN = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{8,20})";
-//
-//    public boolean validatePassString(final String password){
-//        Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
-//        Matcher matcher = pattern.matcher(password);
-//        return matcher.matches();
-//
-//    }
 
 
 }

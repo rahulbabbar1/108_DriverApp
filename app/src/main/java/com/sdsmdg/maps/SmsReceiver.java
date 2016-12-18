@@ -19,7 +19,7 @@ public class SmsReceiver extends BroadcastReceiver {
     static String recievedMSG = null;
     static String latitude = null;
     static String longitude = null;
-    static String name, userMobile, requestId;
+    static String name, userMobile, requestId, age, gender;
     static String TAG = "smsreceiver";
 
     @Override
@@ -35,7 +35,7 @@ public class SmsReceiver extends BroadcastReceiver {
 //                String receiveTime = format.format(date);
                 recievedMSG = msg.getDisplayMessageBody();
                 if (recievedMSG.startsWith("Laterox")) {
-                    String regex = "\\[(.+)\\]\\[(.+)\\]\\[(.+)\\]\\[(.+)\\]\\[(.+)\\]";
+                    String regex = "^Laterox (.+),(.+),(.+),(.+),(.+),(.+),(.+)";
                     Pattern pattern = Pattern.compile(regex);
                     Matcher matcher = pattern.matcher(recievedMSG);
                     if (matcher.find()) {
@@ -43,7 +43,10 @@ public class SmsReceiver extends BroadcastReceiver {
                         longitude = matcher.group(2);
                         name = matcher.group(3);
                         userMobile = matcher.group(4);
-                        requestId = matcher.group(5);
+                        age=matcher.group(5);
+                        gender=matcher.group(6);
+                        requestId = matcher.group(7);
+
                     }
 //                    int firstClosBrac = recievedMSG.indexOf(']');
 //                    latitude = recievedMSG.substring(recievedMSG.indexOf('[')+1,firstClosBrac);
@@ -56,6 +59,8 @@ public class SmsReceiver extends BroadcastReceiver {
                     i.putExtra("name", name);
                     i.putExtra("mobile", userMobile);
                     i.putExtra("requestId", requestId);
+                    i.putExtra("age", age);
+                    i.putExtra("gender", gender);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(i);
                 }

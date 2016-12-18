@@ -38,6 +38,7 @@ public class HomeActivity extends AppCompatActivity implements FunSwitch.fun {
         textView = (TextView) findViewById(R.id.textView);
         Intent data = getIntent();
         uid = data.getStringExtra("uid");
+        Log.d(TAG, "onCreate() called with: uid = [" + uid + "]");
         getCity("cityData/" + uid);
     }
 
@@ -54,16 +55,22 @@ public class HomeActivity extends AppCompatActivity implements FunSwitch.fun {
     }
 
     public void changeStatus(String uid, boolean isactive){
-        String status ;
+        String status;
         if(isactive){
             status="active";
+            Intent i= new Intent(HomeActivity.this,GetLocation.class);
+            startService(i);
         }
         else {
             status="inactive";
+            Intent i= new Intent(HomeActivity.this,GetLocation.class);
+            stopService(i);
         }
         FirebaseDatabase database = FirebaseDatabase.getInstance();
+        if(city!=null){
         DatabaseReference requestRef = database.getReference("driver/"+city+"/"+uid+"/status");
         requestRef.setValue(status);
+        }
     }
 
     public void getData() {
@@ -76,6 +83,8 @@ public class HomeActivity extends AppCompatActivity implements FunSwitch.fun {
                 String status = dataSnapshot.child("status").getValue().toString();
                 if(status.equals("active")){
                     changeSwitchState(true);
+                    Intent i= new Intent(HomeActivity.this,GetLocation.class);
+                    startService(i);
                     textView.setText("Active");
                 }
                 else{
@@ -105,7 +114,7 @@ public class HomeActivity extends AppCompatActivity implements FunSwitch.fun {
                 Log.d(TAG, "onDataChange() called with: dataSnapshot = [" + dataSnapshot.toString() + "]");
                 city = dataSnapshot.child("city").getValue().toString();
                 getData();
-                Log.d(TAG, "get data onDataChange() called with: city = [" + city + "]");
+                Log.d(TAG, "get data onDatfsaChange() called with: city = [" + city + "]");
             }
 
             @Override
