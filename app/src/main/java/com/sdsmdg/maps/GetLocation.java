@@ -119,19 +119,19 @@ public class GetLocation extends Service {
 
     @Override
     public void onStart(Intent intent, int startid) {
-        Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
     }
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
-        Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
 
         return Service.START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "Service Stopped", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Service Stopped", Toast.LENGTH_LONG).show();
     }
 
 
@@ -177,7 +177,7 @@ public class GetLocation extends Service {
 //                SmsManager smsManager = SmsManager.getDefault();
 //                smsManager.sendTextMessage(Constants.serverNumber, null, smsBody, null, null);
 //            }
-//        }).start();
+//        }).start();ice
     //    }
 
 

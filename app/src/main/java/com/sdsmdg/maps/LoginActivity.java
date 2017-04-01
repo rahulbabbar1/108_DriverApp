@@ -25,13 +25,21 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.sdsmdg.maps.Constants.IS_ASSIGNED;
+import static com.sdsmdg.maps.Constants.SHARED_PREFERENCES;
 
 /**
  * Created by rahul on 25/11/16.
@@ -48,6 +56,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
     private int count=0;
     private Spinner spinner;
     private String city;
+    public static String STATUS_ASSIGNED = "assigned";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +136,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
     private void init(){
         mAuth = FirebaseAuth.getInstance();
 
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -140,18 +150,37 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                             uploadData(user.getUid());
                         }
                         Intent intentPrev = getIntent();
+
+                        Intent intent;
+                        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+                        SharedPreferences.Editor spEditor = sharedPreferences.edit();
+                        boolean isAssigned = sharedPreferences.getBoolean(IS_ASSIGNED, false);
                         if((getIntent()!=null)&&(intentPrev.getBooleanExtra("isFromSmsReceiver",false))){
-                            Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                            intent.fillIn(getIntent(),Intent.FILL_IN_DATA);
-                            intent.putExtra("uid",user.getUid());
-                            startActivity(intent);
+                            intent = new Intent(LoginActivity.this,MainActivity.class);
+                            Intent data = getIntent();
+                            String reqItmString = data.getStringExtra("requestItem");
+                            intent.putExtra("requestItem", reqItmString);
+                            spEditor.putString("requestItem", reqItmString);
+                            spEditor.putBoolean(IS_ASSIGNED, true);
+                            spEditor.commit();
+                            Log.d(TAG, "onAuthStateChanged() called with: firebaseAuth1 = [" + sharedPreferences.getBoolean(IS_ASSIGNED,false) + "]");
+                        }
+                        else if(isAssigned){
+                            intent = new Intent(LoginActivity.this,MainActivity.class);
+                            //intent.fillIn(getIntent(),Intent.FILL_IN_DATA);
+                            String reqItmString = sharedPreferences.getString("requestItem","");
+                            intent.putExtra("requestItem", reqItmString);
+                            Log.d(TAG, "onAuthStateChanged() called with: firebaseAuth2 = [" + reqItmString + "]");
                         }
                         else{
-                            Intent intent = new Intent(LoginActivity.this,HomeActivity.class);
-                            intent.putExtra("uid",user.getUid());
-                            startActivity(intent);
+                            intent = new Intent(LoginActivity.this,HomeActivity.class);
+                            Log.d(TAG, "onAuthStateChanged() called with: firebaseAuth3 = [" + firebaseAuth + "]");
                         }
+
+                        intent.putExtra("uid",user.getUid());
+                        startActivity(intent);
                         finish();
+
                         Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     }
                 } else {
@@ -395,6 +424,32 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
         sendData("driver/"+city+"/"+uid+"/status","active");
     }
 
+//    public void getStatus(final String uid) {
+//        FirebaseDatabase database = FirebaseDatabase.getInstance();
+//        DatabaseReference myRef = database.getReference();
+//        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                Log.d(TAG, "onDataChange() called with: dataSnapshot = [" + dataSnapshot.toString() + "]");
+//                String status = dataSnapshot.child("status").getValue().toString();
+//                String requestId = dataSnapshot.child("currentRequestId").getValue().toString();
+//                Log.d(TAG, "get data onDataChange() called with: city = [" + city + "]");
+//                if(status==LoginActivity.STATUS_ASSIGNED){
+//                    //start map activity
+//                }
+//                else {
+//                    Intent intent = new Intent(LoginActivity.this,HomeActivity.class);
+//                    intent.putExtra("uid",uid);
+//                    startActivity(intent);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//    }
 
 
 }

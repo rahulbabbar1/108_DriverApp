@@ -53,14 +53,9 @@ public class SmsReceiver extends BroadcastReceiver {
 //                    longitude = recievedMSG.substring(recievedMSG.indexOf('[',firstClosBrac)+1,recievedMSG.indexOf(']',firstClosBrac+1));
                     Log.d(TAG, "onReceive() called with: " + "latitude = [" + latitude + "], longitude = [" + longitude + "]");
                     Intent i = new Intent(context, LoginActivity.class);
+                    RequestItem requestItem = new RequestItem(name, userMobile,  requestId, age, gender, latitude, longitude);
                     i.putExtra("isFromSmsReceiver", true);
-                    i.putExtra("latitude", latitude);
-                    i.putExtra("longitude", longitude);
-                    i.putExtra("name", name);
-                    i.putExtra("mobile", userMobile);
-                    i.putExtra("requestId", requestId);
-                    i.putExtra("age", age);
-                    i.putExtra("gender", gender);
+                    i.putExtra("requestItem", requestItem.toString());
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(i);
                 }
