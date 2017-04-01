@@ -1,6 +1,9 @@
 package com.sdsmdg.maps;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +14,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -31,6 +36,7 @@ import com.google.firebase.database.ValueEventListener;
 public class GetLocation extends Service {
     public String TAG = "getlocation";
     private String city = "";
+    String uid;
 //    public int count = 0;
 
     @Override
@@ -42,6 +48,7 @@ public class GetLocation extends Service {
     public void onCreate() {
 
         Log.d(TAG, "onCreate() called with: " + "");
+
         // Acquire a reference to the system Location Manager
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
@@ -71,7 +78,9 @@ public class GetLocation extends Service {
                     // The user's ID, unique to the Firebase project. Do NOT use this value to
                     // authenticate with your backend server, if you have one. Use
                     // FirebaseUser.getToken() instead.
+                    uid=user.getUid();
                     uidfb = user.getUid();
+                    setNotification("Location Service","You are currently active");
                     getData("cityData/" + uidfb);
                     if ((!city.equals(""))) {
                         sendData("driver/" + city + "/" + uidfb + "/latitude", Double.toString(location.getLatitude()));
@@ -111,6 +120,13 @@ public class GetLocation extends Service {
     @Override
     public void onStart(Intent intent, int startid) {
         Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public int onStartCommand (Intent intent, int flags, int startId) {
+        Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
+
+        return Service.START_STICKY;
     }
 
     @Override
@@ -162,7 +178,8 @@ public class GetLocation extends Service {
 //                smsManager.sendTextMessage(Constants.serverNumber, null, smsBody, null, null);
 //            }
 //        }).start();
-//    }
+    //    }
+
 
     public void getData(String location) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -175,17 +192,38 @@ public class GetLocation extends Service {
                 Log.d(TAG, "get data onDataChange() called with: city = [" + city + "]");
             }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
-    }
+                }
+            });
+        }
 
     public void sendData(String location, String value) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference(location);
 
         myRef.setValue(value);
+    }
+
+
+
+    public void setNotification(String title, String message){
+        Intent homeIntent = new Intent(this, HomeActivity.class);
+        homeIntent.putExtra("uid",uid);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(HomeActivity.class);
+        stackBuilder.addNextIntent(homeIntent);
+        Log.d(TAG, "setNotification() called with: title = [" + title + "], uid = [" + uid + "]");
+        PendingIntent contentIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);        Notification notification = new Notification.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)  // the status icon
+                .setTicker(title)  // the status text
+                .setWhen(System.currentTimeMillis())  // the time stamp
+                .setContentTitle(title)  // the label
+                .setContentText(message)  // the contents of the entry
+                .setContentIntent(contentIntent)// The intent to send when clicked
+                .setAutoCancel(false)
+                .build();
+        startForeground(1, notification);
     }
 }
