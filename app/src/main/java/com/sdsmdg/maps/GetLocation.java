@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -37,12 +38,14 @@ public class GetLocation extends Service {
     public String TAG = "getlocation";
     private String city = "";
     String uid;
+    Location locationMain;
 //    public int count = 0;
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
+
 
     @Override
     public void onCreate() {
@@ -81,12 +84,9 @@ public class GetLocation extends Service {
                     uid=user.getUid();
                     uidfb = user.getUid();
                     setNotification("Location Service","You are currently active");
+                    locationMain = location;
                     getData("cityData/" + uidfb);
-                    if ((!city.equals(""))) {
-                        sendData("driver/" + city + "/" + uidfb + "/latitude", Double.toString(location.getLatitude()));
-                        sendData("driver/" + city + "/" + uidfb + "/longitude", Double.toString(location.getLongitude()));
-                        sendData("driver/" + city + "/" + uidfb + "/accuracy", Double.toString(location.getAccuracy()));
-                    }
+
                 }
 
                 //Toast.makeText(GetLocation.this, "onLocationChanged() called with: " + "location [ longitude = " + location.getLongitude() + " latitude = " + location.getLatitude() + "]",Toast.LENGTH_LONG).show();
@@ -189,6 +189,11 @@ public class GetLocation extends Service {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onDataChange() called with: dataSnapshot = [" + dataSnapshot.toString() + "]");
                 city = dataSnapshot.child("city").getValue().toString();
+                if ((!city.equals(""))) {
+                    sendData("driver/" + city + "/" + uid + "/latitude", Double.toString(locationMain.getLatitude()));
+                    sendData("driver/" + city + "/" + uid + "/longitude", Double.toString(locationMain.getLongitude()));
+                    sendData("driver/" + city + "/" + uid + "/accuracy", Double.toString(locationMain.getAccuracy()));
+                }
                 Log.d(TAG, "get data onDataChange() called with: city = [" + city + "]");
             }
 

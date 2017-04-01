@@ -4,6 +4,7 @@ import android.*;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -62,6 +63,8 @@ import static android.R.attr.actionDropDownStyle;
 import static android.R.attr.imeFullscreenBackground;
 import static android.R.attr.value;
 import static android.R.attr.width;
+import static com.sdsmdg.maps.Constants.IS_ASSIGNED;
+import static com.sdsmdg.maps.Constants.SHARED_PREFERENCES;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
     GoogleMap m_map;
@@ -122,9 +125,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 if(requestId != null) {
-                    markRequestComplete(requestId);
                     makeComplete.setEnabled(false);
                     Toast.makeText(MainActivity.this, "Task Completed", Toast.LENGTH_LONG).show();
+                    SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFERENCES, MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(IS_ASSIGNED, false);
+                    editor.commit();
+                    Log.d(TAG, "onClick() called with: view = [" + view + "]");
+                    markRequestComplete(requestId);
                     finish();
                 } else {
                     Toast.makeText(MainActivity.this,"No request id",Toast.LENGTH_LONG).show();

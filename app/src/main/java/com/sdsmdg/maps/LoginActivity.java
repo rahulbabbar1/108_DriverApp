@@ -1,6 +1,7 @@
 package com.sdsmdg.maps;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -68,11 +69,15 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
     private Geocoder geocoder;
     private LocationListener locationListener;
     private LocationManager locationManager;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 
         init();
 
@@ -248,6 +253,9 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
 
                         intent.putExtra("uid",user.getUid());
                         startActivity(intent);
+                        if(progressDialog.isShowing()){
+                            progressDialog.hide();
+                        }
                         finish();
 
                         Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
@@ -262,6 +270,9 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
     }
 
     private void createAccount(String email,String password){
+        progressDialog.setMessage("Signing in ...");
+        progressDialog.setIndeterminate(true);
+        progressDialog.show();
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -272,6 +283,9 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
+                            if(progressDialog.isShowing()){
+                                progressDialog.hide();
+                            }
                             Toast.makeText(LoginActivity.this,"Authentication Failed" ,
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -289,6 +303,9 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
     }
 
     private void signin(String email,String password){
+        progressDialog.setMessage("Signing in ...");
+        progressDialog.setIndeterminate(true);
+        progressDialog.show();
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -302,6 +319,9 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                             Log.w(TAG, "signInWithEmail:failed", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication Failed",
                                     Toast.LENGTH_SHORT).show();
+                            if(progressDialog.isShowing()){
+                                progressDialog.hide();
+                            }
                         }
 
                         // ...
