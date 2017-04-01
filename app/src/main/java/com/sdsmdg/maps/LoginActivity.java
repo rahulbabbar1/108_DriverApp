@@ -1,9 +1,15 @@
 package com.sdsmdg.maps;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -33,8 +39,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,19 +52,22 @@ import static com.sdsmdg.maps.Constants.SHARED_PREFERENCES;
 /**
  * Created by rahul on 25/11/16.
  */
-public class LoginActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
+public class LoginActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private String TAG="loginactivity";
-    private boolean isNewUser=false;
-    private String phoneNumber="";
-    private String name="";
+    private String TAG = "loginactivity";
+    private boolean isNewUser = false;
+    private String phoneNumber = "";
+    private String name = "";
     private Activity SavedActivity;
-    private int count=0;
-    private Spinner spinner;
+    private int count = 0;
+    private EditText cityET;
     private String city;
     public static String STATUS_ASSIGNED = "assigned";
+    private Geocoder geocoder;
+    private LocationListener locationListener;
+    private LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,29 +76,31 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
 
         init();
 
-        spinner = (Spinner) findViewById(R.id.spinner);
-        setSpinner();
+        cityET = (EditText) findViewById(R.id.city_et);
+        //setSpinner();
 
-        final EditText emailET= (EditText)findViewById(R.id.emailET);
-        final EditText passET= (EditText)findViewById(R.id.passET);
-        final TextView switchTV = (TextView)findViewById(R.id.signupTV);
-        final TextView switchTVBack = (TextView)findViewById(R.id.signupTV2);
-        final Button loginButton=(Button)findViewById(R.id.loginet);
-        final EditText phoneET= (EditText)findViewById(R.id.phoneET);
-        final EditText nameET= (EditText)findViewById(R.id.nameET);
-        final Button signupButton=(Button)findViewById(R.id.signup);
+        final EditText emailET = (EditText) findViewById(R.id.emailET);
+        final EditText passET = (EditText) findViewById(R.id.passET);
+        final TextView switchTV = (TextView) findViewById(R.id.signupTV);
+        final TextView switchTVBack = (TextView) findViewById(R.id.signupTV2);
+        final Button loginButton = (Button) findViewById(R.id.loginet);
+        final EditText phoneET = (EditText) findViewById(R.id.phoneET);
+        final EditText nameET = (EditText) findViewById(R.id.nameET);
+        final Button signupButton = (Button) findViewById(R.id.signup);
 
         switchTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 nameET.setVisibility(View.VISIBLE);
                 phoneET.setVisibility(View.VISIBLE);
-                spinner.setVisibility(View.VISIBLE);
+                cityET.setVisibility(View.VISIBLE);
                 loginButton.setVisibility(View.INVISIBLE);
                 signupButton.setVisibility(View.VISIBLE);
                 switchTV.setVisibility(View.INVISIBLE);
                 switchTVBack.setVisibility(View.VISIBLE);
-                isNewUser=true;
+                geocoder = new Geocoder(LoginActivity.this, Locale.getDefault());
+                isNewUser = true;
+                setCity();
             }
         });
 
@@ -96,12 +109,20 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
             public void onClick(View v) {
                 nameET.setVisibility(View.INVISIBLE);
                 phoneET.setVisibility(View.INVISIBLE);
-                spinner.setVisibility(View.INVISIBLE);
+                cityET.setVisibility(View.INVISIBLE);
                 loginButton.setVisibility(View.VISIBLE);
                 signupButton.setVisibility(View.INVISIBLE);
                 switchTV.setVisibility(View.VISIBLE);
                 switchTVBack.setVisibility(View.INVISIBLE);
-                isNewUser=false;
+                isNewUser = false;
+            }
+        });
+
+        cityET.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick() called with: v = [" + v + "]");
+                setCity();
             }
         });
 
@@ -109,8 +130,8 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(validateEmail(emailET)&&validatePassword(passET)){
-                    signin(emailET.getText().toString(),passET.getText().toString());
+                if (validateEmail(emailET) && validatePassword(passET)) {
+                    signin(emailET.getText().toString(), passET.getText().toString());
                 }
             }
         });
@@ -119,20 +140,68 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(validateName(nameET)&&validateEmail(emailET)&&validatePassword(passET)&&validatePhone(phoneET)){
-                    phoneNumber=phoneET.getText().toString();
-                    name=nameET.getText().toString();
-                    createAccount(emailET.getText().toString(),passET.getText().toString());
+                if (validateName(nameET) && validateCity(cityET) && validateEmail(emailET) && validatePassword(passET) && validatePhone(phoneET)) {
+                    phoneNumber = phoneET.getText().toString();
+                    name = nameET.getText().toString();
+                    city = cityET.getText().toString();
+                    createAccount(emailET.getText().toString(), passET.getText().toString());
                 }
             }
         });
 
-        SavedActivity=LoginActivity.this;
+        SavedActivity = LoginActivity.this;
         myCheckPermission(SavedActivity);
+
+        locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                getCity(location.getLatitude() , location.getLongitude());
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            public void onProviderEnabled(String provider) {
+            }
+
+            public void onProviderDisabled(String provider) {
+            }
+        };
+
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
 
     }
 
+    private void getCity(double latitude, double longitude){
+        try {
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            String city = addresses.get(0).getLocality();
+            cityET.setText(city);
+            Log.d(TAG, "getCity() called with: latitude = [" + city + "], longitude = [" + longitude + "]");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    };
+
+    private void setCity() {
+        if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            Toast.makeText(LoginActivity.this, "Please Enable Location first", Toast.LENGTH_LONG).show();
+            GetLocation.showSettings(LoginActivity.this);
+        } else {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(LoginActivity.this,
+                        new String[]{ android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_GET_CITY);
+                return;
+            }
+            else {
+                Toast.makeText(LoginActivity.this, "Fetching City", Toast.LENGTH_LONG).show();
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            }
+        }
+
+    }
     private void init(){
         mAuth = FirebaseAuth.getInstance();
 
@@ -256,8 +325,9 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
 
 
     public final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
+    public final int MY_PERMISSIONS_REQUEST_GET_CITY = 11;
 
-    public void myCheckPermission(Activity thisActivity){
+    public boolean myCheckPermission(Activity thisActivity){
         // Here, thisActivity is the current activity
         if( ContextCompat.checkSelfPermission(thisActivity,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -286,6 +356,8 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
                     new String[]{ android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.INTERNET, android.Manifest.permission.SEND_SMS, android.Manifest.permission.RECEIVE_SMS},
                     MY_PERMISSIONS_REQUEST_READ_CONTACTS);
 
+            return false;
+
             // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
             // app-defined int constant. The callback method gets the
             // result of the request.
@@ -294,6 +366,7 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
         }
         else{
             Log.d(TAG, "myCheckPermission() else called with: " + "thisActivity = [" + thisActivity + "]");
+            return true;
         }
     }
 
@@ -313,6 +386,16 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
+                }
+
+                return;
+            }
+
+            case MY_PERMISSIONS_REQUEST_GET_CITY:{
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    setCity();
+                } else {
                 }
                 return;
             }
@@ -339,6 +422,18 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
     }
 
     private boolean validateName(EditText editText) {
+        String temp = editText.getText().toString().trim();
+        editText.setText(temp);
+        if (TextUtils.isEmpty(temp)) {
+            editText.setError("Required.");
+            return false;
+        } else {
+            editText.setError(null);
+            return true;
+        }
+    }
+    
+    private boolean validateCity(EditText editText){
         String temp = editText.getText().toString().trim();
         editText.setText(temp);
         if (TextUtils.isEmpty(temp)) {
@@ -382,27 +477,27 @@ public class LoginActivity extends AppCompatActivity implements AdapterView.OnIt
         }
     }
 
-    public void setSpinner(){
-
-        // Spinner click listener
-        spinner.setOnItemSelectedListener(this);
-
-        // Spinner Drop down elements
-        city="Chennai";
-        List<String> categories = new ArrayList <String>();
-        categories.add("Chennai");
-        categories.add("Kancheepuram");
-        categories.add("Thiruvallur");
-
-        // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter <String>(this, android.R.layout.simple_spinner_item, categories);
-
-        // Drop down layout style - list view with radio button
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // attaching data adapter to spinner
-        spinner.setAdapter(dataAdapter);
-    }
+//    public void setSpinner(){
+//
+//        // Spinner click listener
+//        spinner.setOnItemSelectedListener(this);
+//
+//        // Spinner Drop down elements
+//        city="Chennai";
+//        List<String> categories = new ArrayList <String>();
+//        categories.add("Chennai");
+//        categories.add("Kancheepuram");
+//        categories.add("Thiruvallur");
+//
+//        // Creating adapter for spinner
+//        ArrayAdapter<String> dataAdapter = new ArrayAdapter <String>(this, android.R.layout.simple_spinner_item, categories);
+//
+//        // Drop down layout style - list view with radio button
+//        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//
+//        // attaching data adapter to spinner
+//        spinner.setAdapter(dataAdapter);
+//    }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

@@ -135,7 +135,7 @@ public class GetLocation extends Service {
     }
 
 
-    public void showSettings(Context mContext) {
+    public static void showSettings(Context mContext) {
 //        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
 //
 //        // Setting Dialog Title
