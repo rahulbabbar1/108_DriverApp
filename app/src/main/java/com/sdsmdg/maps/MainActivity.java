@@ -131,35 +131,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
-        timeLeft= (TextView)findViewById(R.id.time_left);
-        Intent intent = getIntent();
-        if(intent.getBooleanExtra("isFromSmsReceiver",false)){
-            requestId=intent.getStringExtra("requestId");
-            lat=intent.getStringExtra("latitude");
-            Log.d(TAG, "onCreate() called with: latityse = [" + lat + "]");
-            lng=intent.getStringExtra("longitude");
-            Log.d(TAG, "onCreate() called with: lng = [" + lng + "]");
-            shouldShow=true;
-            setAddress((TextView)findViewById(R.id.user_address));
-            ((TextView)findViewById(R.id.user_name)).setText(intent.getStringExtra("name"));
-            ((TextView)findViewById(R.id.user_gender)).setText(intent.getStringExtra("gender"));
-            ((TextView)findViewById(R.id.user_age)).setText(intent.getStringExtra("age"));
-            final TextView userPhone = (TextView)findViewById(R.id.user_phone);
-            userPhone.setText(intent.getStringExtra("mobile"));
-            userPhone.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    callPhone(userPhone.getText().toString());
-                }
-            });
-            findViewById(R.id.imagePhone).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    callPhone(userPhone.getText().toString());
-                }
-            });
+        timeLeft = (TextView)findViewById(R.id.time_left);
+        RequestItem requestItem = new RequestItem(getIntent().getStringExtra("requestItem"));
+        requestId = requestItem.getRequestId();
+        lat = requestItem.getLatitude();
+        Log.d(TAG, "onCreate() called with: latityse = [" + lat + "]");
+        lng = requestItem.getLongitude();
+        Log.d(TAG, "onCreate() called with: lng = [" + lng + "]");
+        shouldShow=true;
+        setAddress((TextView)findViewById(R.id.user_address));
+        ((TextView)findViewById(R.id.user_name)).setText(requestItem.getName());
+        ((TextView)findViewById(R.id.user_gender)).setText(requestItem.getGender());
+        ((TextView)findViewById(R.id.user_age)).setText(requestItem.getAge());
+        final TextView userPhone = (TextView)findViewById(R.id.user_phone);
+        userPhone.setText(requestItem.getUserMobile());
+        userPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callPhone(userPhone.getText().toString());
+            }
+        });
+        findViewById(R.id.imagePhone).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callPhone(userPhone.getText().toString());
+            }
+        });
 
-        }
+
 
         findViewById(R.id.navigateButton).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -276,6 +275,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference requestRef = database.getReference("requests/"+requestId+"/status");
         requestRef.setValue("completed");
+
+
     }
 
     private void setAddress(TextView address){
