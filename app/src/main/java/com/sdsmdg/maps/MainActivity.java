@@ -120,6 +120,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //            }
 //        });
 
+
+
         final Button makeComplete = (Button)findViewById(R.id.complete_button);
         makeComplete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,6 +139,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } else {
                     Toast.makeText(MainActivity.this,"No request id",Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+        Button checklist = (Button)findViewById(R.id.checklist1);
+        checklist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, ListViewCheckboxesActivity.class);
+                startActivity(i);
             }
         });
         timeLeft = (TextView)findViewById(R.id.time_left);

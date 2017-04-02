@@ -39,45 +39,58 @@
     <!--android:layout_height="wrap_content"/>-->
     <!--</LinearLayout>-->
     <LinearLayout
-    android:id="@+id/name_container"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="5dp"
-    android:minHeight="40dp"
-    android:visibility="gone"
-    android:weightSum="2">
+        android:id="@+id/name_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:minHeight="40dp"
+        android:visibility="gone"
+        android:weightSum="2">
 
-    <TextView
-    android:id="@+id/name"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center_vertical"
-    android:layout_weight="1"
-    android:gravity="center"
-    android:hint="Name"
-    android:textSize="16sp" />
 
-    <TextView
-    android:id="@+id/mobile"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center_vertical"
-    android:layout_weight="1"
-    android:gravity="center"
-    android:hint="Mobile"
-    android:textSize="16sp" />
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:hint="Name"
+            android:textSize="16sp" />
 
-    <Button
-    android:id="@+id/mark_complete"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@drawable/border_circular"
-    android:padding="10dp"
-    android:text="Mark Complete"
-    android:textColor="#fff" />
+        <TextView
+            android:id="@+id/mobile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:hint="Mobile"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/mark_complete"
+            android:layout_width="30dp"
+            android:layout_height="60dp"
+            android:background="@drawable/border_circular"
+            android:padding="10dp"
+            android:text="Mark Complete"
+            android:textColor="#fff" />
+
+
+
+
     </LinearLayout>
 
-
+    <Button
+        android:id="@+id/checklist1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_circular"
+        android:layout_margin="40dp"
+        android:layout_alignParentRight="true"
+        android:text="Check List"
+        android:textColor="#fff" />
 
 
     <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"

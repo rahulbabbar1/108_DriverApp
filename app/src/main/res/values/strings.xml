@@ -1,6 +1,12 @@
 <resources>
-    <string name="app_name">Pilot App</string>
+
     <string name="spinner_title">City</string>
     <string name="key">AIzaSyAVrAs49EdgKRuFJSOedzO-s--AldjRiuQ</string>
+    <string name="title_activity_checklist">Checklist</string>
+    <string name="some_text">
+     Check list fot DRIVERS
+ </string>
+    <string name="app_name">ListView Checkboxes</string>
+    <string name="action_settings">Settings</string>
 
 </resources>
