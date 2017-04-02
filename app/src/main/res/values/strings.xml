@@ -6,7 +6,7 @@
     <string name="some_text">
      Check list fot DRIVERS
  </string>
-    <string name="app_name">ListView Checkboxes</string>
+    <string name="app_name">Driver App</string>
     <string name="action_settings">Settings</string>
 
 </resources>
