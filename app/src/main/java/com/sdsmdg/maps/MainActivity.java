@@ -8,12 +8,14 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -45,6 +47,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -72,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LinearLayout nameContainer;
     String lat, lng;
     MarkerOptions clientPosition;
+    MarkerOptions clientPosition2;
     boolean mapReady = false;
     boolean shouldShow = false;
     public Activity mainActivity;
@@ -247,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         clientPosition = new MarkerOptions().position(latLng).title("Emergency");
                         m_map.moveCamera(CameraUpdateFactory.newCameraPosition(target));
                         m_map.addMarker(clientPosition);
+
                     }
                 }
     }
@@ -355,13 +360,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG, "onDataChange() called with: dataSnapshot = [" + dataSnapshot.toString() + "]");
+                Log.d(TAG, "onDataChange(2) called with: dataSnapshot = [" + dataSnapshot.toString() + "]");
                 if((dataSnapshot.child("latitude").getValue()!=null)&&(dataSnapshot.child("longitude").getValue()!=null)){
                     latDriver = dataSnapshot.child("latitude").getValue().toString();
                     lngDriver = dataSnapshot.child("longitude").getValue().toString();
+                    LatLng latLng = new LatLng(Float.parseFloat(latDriver), Float.parseFloat(lngDriver));
+                    clientPosition2 = new MarkerOptions().position(latLng).title("Me");
+                    m_map.addMarker(clientPosition2);
+                    m_map.addPolyline(new PolylineOptions()
+                            .add(new LatLng(Double.parseDouble(latDriver), Double.parseDouble(lngDriver)),
+                                    new LatLng(Double.parseDouble(lat), Double.parseDouble(lng)))
+                            .width(5).color(Color.BLUE).geodesic(true));
                     getDistance();
                 }
-                Log.d(TAG, "get data onDataChange() called with: city = [" + city + "]");
+                Log.d(TAG, "get data onDataChange(2) called with: city = [" + city + "]");
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
